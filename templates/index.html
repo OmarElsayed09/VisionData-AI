@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionData AI | Premium Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050810;
+            --card-bg: rgba(13, 18, 30, 0.7);
+            --accent-cyan: #22d3ee;
+            --accent-indigo: #818cf8;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            color: #f1f5f9; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, var(--bg-color) 80%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar-chat { height: calc(100vh - 3rem); }
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+            padding: 1px;
+        }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-[1600px] mx-auto grid grid-cols-12 gap-8">
+        
+        <!-- Main Dashboard Section (8 Cols) -->
+        <div class="col-span-12 lg:col-span-8 space-y-8">
+            <!-- Sleek Header -->
+            <header class="flex justify-between items-center bg-white/5 p-6 rounded-3xl border border-white/5">
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">VISION DATA AI</h1>
+                    <p class="text-slate-500 text-xs font-semibold tracking-[0.2em] uppercase mt-1">Professional Analytics Console</p>
+                </div>
+                <button onclick="document.getElementById('fileInput').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-2xl text-sm font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20">
+                    Connect Data Source
+                </button>
+                <input type="file" id="fileInput" class="hidden" onchange="uploadAndProcess()">
+            </header>
+
+            <!-- Dynamic Dashboard Content -->
+            <div id="dashboard" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                <!-- Row 1 -->
+                <div class="glass-panel p-8 h-[350px]"><canvas id="chartBar"></canvas></div>
+                <div class="glass-panel p-8 h-[350px]"><canvas id="chartLine"></canvas></div>
+                <!-- Row 2 -->
+                <div class="glass-panel p-8 h-[350px] flex flex-col">
+                    <h4 class="text-slate-500 text-[10px] font-bold uppercase mb-4 text-center tracking-widest">Share Distribution</h4>
+                    <div class="flex-1 min-h-0"><canvas id="chartPie"></canvas></div>
+                </div>
+                <div class="glass-panel p-8 h-[350px] flex flex-col">
+                    <h4 class="text-slate-500 text-[10px] font-bold uppercase mb-4 text-center tracking-widest">Statistical Density</h4>
+                    <div class="flex-1 min-h-0"><canvas id="chartRadar"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Empty State Illustration -->
+            <div id="emptyView" class="glass-panel py-40 text-center border-dashed border-2 border-slate-800">
+                <div class="text-7xl mb-8 opacity-20">📡</div>
+                <h2 class="text-2xl font-semibold text-slate-300">Awaiting Data Connection</h2>
+                <p class="text-slate-500 max-w-sm mx-auto mt-4 leading-relaxed font-light">Upload your dataset to initialize the neural analysis engine and visualize multi-dimensional insights.</p>
+            </div>
+        </div>
+
+        <!-- Right Side: AI Assistant (4 Cols) -->
+        <aside class="col-span-12 lg:col-span-4 sidebar-chat glass-panel flex flex-col sticky top-6 border-indigo-500/10 shadow-2xl">
+            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+                    <h3 class="font-bold text-sm tracking-tight">AI Data Consultant</h3>
+                </div>
+                <span class="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-1 rounded-md border border-indigo-500/20 font-bold uppercase">Ready</span>
+            </div>
+
+            <div id="chatWindow" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scroll">
+                <div class="bg-indigo-500/5 border border-indigo-500/10 p-4 rounded-2xl rounded-tl-none text-slate-400 text-sm leading-relaxed">
+                    Welcome back, Omar. Upload your file to start the deep-dive analysis. I'm ready to discuss your data in <b>Arabic</b> or <b>English</b>.
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-white/5">
+                <div class="relative group">
+                    <input type="text" id="chatInput" onkeypress="if(event.key==='Enter') sendChat()" placeholder="Ask your agent..." class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl py-4 px-6 outline-none focus:border-indigo-500 transition-all text-sm group-hover:border-slate-700">
+                    <button onclick="sendChat()" class="absolute right-3 top-3 bg-indigo-600 hover:bg-indigo-500 p-2.5 rounded-xl transition-all">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M14 5l7 7-7 7M3 12h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        let myCharts = [];
+
+        async function uploadAndProcess() {
+            const file = document.getElementById('fileInput').files[0];
+            if(!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('/api/process', { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if(data.success) {
+                document.getElementById('emptyView').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                initCharts(data.stats);
+            } else {
+                alert("Processing Error: " + data.error);
+            }
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const window = document.getElementById('chatWindow');
+            const q = input.value.trim();
+            if(!q) return;
+
+            window.innerHTML += `<div class="text-right animate-in fade-in slide-in-from-right-4"><span class="bg-indigo-600/10 text-indigo-300 px-4 py-2.5 rounded-2xl inline-block text-sm border border-indigo-500/20">${q}</span></div>`;
+            input.value = '';
+            window.scrollTop = window.scrollHeight;
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query: q})
+            });
+            const data = await res.json();
+            window.innerHTML += `<div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none mr-12 text-slate-200 text-sm border border-white/5 animate-in fade-in slide-in-from-left-4">🤖 ${data.answer}</div>`;
+            window.scrollTop = window.scrollHeight;
+        }
+
+        function initCharts(stats) {
+            myCharts.forEach(c => c.destroy());
+            myCharts = [];
+            
+            const accentColors = ['#22d3ee', '#818cf8', '#6366f1', '#4f46e5', '#3b82f6'];
+            
+            const baseConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#475569', font: { size: 10 } } },
+                    x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 10 } } }
+                }
+            };
+
+            // Bar
+            myCharts.push(new Chart(document.getElementById('chartBar'), {
+                type: 'bar',
+                data: { labels: stats.cols, datasets: [{ data: stats.means, backgroundColor: accentColors[0], borderRadius: 8 }] },
+                options: { ...baseConfig, plugins: { title: { display: true, text: 'Averages by Column', color: '#94a3b8', font: { weight: 'bold' } } } }
+            }));
+
+            // Line
+            myCharts.push(new Chart(document.getElementById('chartLine'), {
+                type: 'line',
+                data: { labels: stats.cols, datasets: [{ data: stats.means, borderColor: accentColors[1], tension: 0.4, fill: true, backgroundColor: 'rgba(129, 140, 248, 0.05)' }] },
+                options: { ...baseConfig, plugins: { title: { display: true, text: 'Trends & Variance', color: '#94a3b8', font: { weight: 'bold' } } } }
+            }));
+
+            // Pie & Radar
+            const noScales = JSON.parse(JSON.stringify(baseConfig)); delete noScales.scales; noScales.plugins.legend.display = true;
+            
+            myCharts.push(new Chart(document.getElementById('chartPie'), {
+                type: 'doughnut',
+                data: { labels: stats.cols, datasets: [{ data: stats.means, backgroundColor: accentColors, borderWidth: 0 }] },
+                options: noScales
+            }));
+
+            myCharts.push(new Chart(document.getElementById('chartRadar'), {
+                type: 'radar',
+                data: { labels: stats.cols, datasets: [{ label: 'Max Values', data: stats.maxs, backgroundColor: 'rgba(34, 211, 238, 0.1)', borderColor: '#22d3ee', borderWidth: 2 }] },
+                options: noScales
+            }));
+        }
+    </script>
+</body>
+</html>
